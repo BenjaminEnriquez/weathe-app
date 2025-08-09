@@ -6,7 +6,22 @@ interface WeatherCardProps {
 }
 
 export const WeatherCard: React.FC<WeatherCardProps> = ({ weatherData }) => {
-  const { location, current } = weatherData;
+  // Safely destructure with fallbacks
+  const location = weatherData?.location;
+  const current = weatherData?.current;
+
+  // Early return if essential data is missing
+  if (!location || !current || !current.condition) {
+    return (
+      <div className="w-full max-w-7xl mx-auto animate-scale-in">
+        <div className="card-professional p-10 text-center">
+          <div className="text-white/60 text-lg">
+            Weather data is loading...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const formatTime = (timeString: string) => {
     try {
@@ -89,17 +104,17 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ weatherData }) => {
                   
                   <div className="text-left">
                     <div className="text-8xl font-display font-black gradient-text leading-none">
-                      {Math.round(current.temp_c)}°
+                      {Math.round(current.temp_c || 0)}°
                     </div>
                     <div className="text-white/60 text-lg mt-2 font-medium">
-                      Feels like <span className="text-white">{Math.round(current.feelslike_c)}°C</span>
+                      Feels like <span className="text-white">{Math.round(current.feelslike_c || 0)}°C</span>
                     </div>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <h2 className="text-3xl font-display font-bold text-white capitalize">
-                    {current.condition.text}
+                    {current.condition?.text || 'Unknown'}
                   </h2>
                   <div className="flex items-center gap-4 text-white/70">
                     <span className="text-sm font-medium">Today • {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
@@ -110,15 +125,15 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ weatherData }) => {
               {/* Quick Stats */}
               <div className="flex lg:flex-col gap-4">
                 <div className="glass-dark rounded-3xl p-4 text-center min-w-[100px]">
-                  <div className="text-2xl font-bold text-white">{current.wind_kph}</div>
+                  <div className="text-2xl font-bold text-white">{current.wind_kph || 0}</div>
                   <div className="text-white/60 text-xs uppercase tracking-wide">km/h Wind</div>
                 </div>
                 <div className="glass-dark rounded-3xl p-4 text-center min-w-[100px]">
-                  <div className="text-2xl font-bold text-white">{current.humidity}%</div>
+                  <div className="text-2xl font-bold text-white">{current.humidity || 0}%</div>
                   <div className="text-white/60 text-xs uppercase tracking-wide">Humidity</div>
                 </div>
                 <div className="glass-dark rounded-3xl p-4 text-center min-w-[100px]">
-                  <div className={`text-2xl font-bold ${getUVLevel(current.uv).color}`}>{getUVLevel(current.uv).level}</div>
+                  <div className={`text-2xl font-bold ${getUVLevel(current.uv || 0).color}`}>{getUVLevel(current.uv || 0).level}</div>
                   <div className="text-white/60 text-xs uppercase tracking-wide">UV Index</div>
                 </div>
               </div>
@@ -135,9 +150,9 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ weatherData }) => {
             <MetricCard
               title="Wind & Air"
               metrics={[
-                { label: 'Wind Speed', value: `${current.wind_kph} km/h`, subtext: current.wind_dir },
-                { label: 'Gusts', value: `${current.gust_kph} km/h`, trend: 'neutral' },
-                { label: 'Pressure', value: `${current.pressure_mb} mb`, trend: 'stable' },
+                { label: 'Wind Speed', value: `${current.wind_kph || 0} km/h`, subtext: current.wind_dir || 'N/A' },
+                { label: 'Gusts', value: `${current.gust_kph || 0} km/h`, trend: 'neutral' },
+                { label: 'Pressure', value: `${current.pressure_mb || 0} mb`, trend: 'stable' },
               ]}
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,9 +164,9 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ weatherData }) => {
             <MetricCard
               title="Visibility & Moisture"
               metrics={[
-                { label: 'Humidity', value: `${current.humidity}%`, color: getAirQualityColor(current.humidity) },
-                { label: 'Visibility', value: `${current.vis_km} km`, trend: 'good' },
-                { label: 'Cloud Cover', value: `${current.cloud}%`, trend: 'neutral' },
+                { label: 'Humidity', value: `${current.humidity || 0}%`, color: getAirQualityColor(current.humidity || 0) },
+                { label: 'Visibility', value: `${current.vis_km || 0} km`, trend: 'good' },
+                { label: 'Cloud Cover', value: `${current.cloud || 0}%`, trend: 'neutral' },
               ]}
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,8 +179,8 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ weatherData }) => {
             <MetricCard
               title="Sun & Precipitation"
               metrics={[
-                { label: 'UV Index', value: getUVLevel(current.uv).level, color: getUVLevel(current.uv).color },
-                { label: 'Precipitation', value: `${current.precip_mm} mm`, trend: current.precip_mm > 0 ? 'rain' : 'clear' },
+                { label: 'UV Index', value: getUVLevel(current.uv || 0).level, color: getUVLevel(current.uv || 0).color },
+                { label: 'Precipitation', value: `${current.precip_mm || 0} mm`, trend: (current.precip_mm || 0) > 0 ? 'rain' : 'clear' },
                 { label: 'Day/Night', value: current.is_day ? 'Day' : 'Night', color: current.is_day ? 'text-yellow-400' : 'text-blue-400' },
               ]}
               icon={
@@ -181,19 +196,19 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ weatherData }) => {
             <h3 className="text-xl font-semibold text-white mb-6">Temperature Analysis</h3>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-white">{Math.round(current.temp_c)}°C</div>
+                <div className="text-3xl font-bold text-white">{Math.round(current.temp_c || 0)}°C</div>
                 <div className="text-white/60 text-sm">Current</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary-300">{Math.round(current.feelslike_c)}°C</div>
+                <div className="text-3xl font-bold text-primary-300">{Math.round(current.feelslike_c || 0)}°C</div>
                 <div className="text-white/60 text-sm">Feels Like</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white">{Math.round(current.temp_f)}°F</div>
+                <div className="text-3xl font-bold text-white">{Math.round(current.temp_f || 0)}°F</div>
                 <div className="text-white/60 text-sm">Fahrenheit</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary-300">{Math.round(current.feelslike_f)}°F</div>
+                <div className="text-3xl font-bold text-primary-300">{Math.round(current.feelslike_f || 0)}°F</div>
                 <div className="text-white/60 text-sm">Feels Like °F</div>
               </div>
             </div>

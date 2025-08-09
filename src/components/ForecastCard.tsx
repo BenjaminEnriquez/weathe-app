@@ -7,6 +7,19 @@ interface ForecastCardProps {
 
 export const ForecastCard: React.FC<ForecastCardProps> = ({ forecast }) => {
   const [selectedDay, setSelectedDay] = useState(0);
+
+  // Early return if forecast data is missing
+  if (!forecast || forecast.length === 0) {
+    return (
+      <div className="w-full max-w-7xl mx-auto animate-scale-in">
+        <div className="card-professional p-10 text-center">
+          <div className="text-white/60 text-lg">
+            Forecast data is loading...
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -82,26 +95,26 @@ export const ForecastCard: React.FC<ForecastCardProps> = ({ forecast }) => {
                   {/* Weather Icon and Condition */}
                   <div className="flex items-center gap-3">
                     <img
-                      src={`https:${day.day.condition.icon}`}
-                      alt={day.day.condition.text}
+                      src={`https:${day.day?.condition?.icon || ''}`}
+                      alt={day.day?.condition?.text || 'Weather condition'}
                       className="w-16 h-16 weather-icon"
                     />
                     <div>
                       <div className="text-white font-medium capitalize text-lg">
-                        {day.day.condition.text}
+                        {day.day?.condition?.text || 'Unknown'}
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-sm text-white/60">
                         <span className="flex items-center gap-1">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                           </svg>
-                          {day.day.daily_chance_of_rain}%
+                          {day.day?.daily_chance_of_rain || 0}%
                         </span>
                         <span className="flex items-center gap-1">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                           </svg>
-                          {day.day.maxwind_kph} km/h
+                          {day.day?.maxwind_kph || 0} km/h
                         </span>
                       </div>
                     </div>
@@ -126,10 +139,10 @@ export const ForecastCard: React.FC<ForecastCardProps> = ({ forecast }) => {
                   
                   <div className="text-right">
                     <div className="text-2xl font-bold text-white">
-                      {Math.round(day.day.maxtemp_c)}°
+                      {Math.round(day.day?.maxtemp_c || 0)}°
                     </div>
                     <div className="text-white/60">
-                      {Math.round(day.day.mintemp_c)}°
+                      {Math.round(day.day?.mintemp_c || 0)}°
                     </div>
                   </div>
                   
@@ -150,19 +163,19 @@ export const ForecastCard: React.FC<ForecastCardProps> = ({ forecast }) => {
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="text-center">
                       <div className="text-white/60 text-xs uppercase tracking-wide mb-1">Humidity</div>
-                      <div className="text-white font-semibold">{day.day.avghumidity}%</div>
+                      <div className="text-white font-semibold">{day.day?.avghumidity || 0}%</div>
                     </div>
                     <div className="text-center">
                       <div className="text-white/60 text-xs uppercase tracking-wide mb-1">UV Index</div>
-                      <div className="text-primary-400 font-semibold">{day.day.uv}</div>
+                      <div className="text-primary-400 font-semibold">{day.day?.uv || 0}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-white/60 text-xs uppercase tracking-wide mb-1">Sunrise</div>
-                      <div className="text-white font-semibold">{day.astro.sunrise}</div>
+                      <div className="text-white font-semibold">{day.astro?.sunrise || 'N/A'}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-white/60 text-xs uppercase tracking-wide mb-1">Sunset</div>
-                      <div className="text-white font-semibold">{day.astro.sunset}</div>
+                      <div className="text-white font-semibold">{day.astro?.sunset || 'N/A'}</div>
                     </div>
                   </div>
                 </div>
@@ -198,14 +211,14 @@ export const ForecastCard: React.FC<ForecastCardProps> = ({ forecast }) => {
                   
                   <div className="mb-3">
                     <img
-                      src={`https:${hour.condition.icon}`}
-                      alt={hour.condition.text}
+                      src={`https:${hour.condition?.icon || ''}`}
+                      alt={hour.condition?.text || 'Weather condition'}
                       className="w-10 h-10 mx-auto weather-icon"
                     />
                   </div>
                   
                   <div className="text-white text-lg font-bold mb-2">
-                    {Math.round(hour.temp_c)}°
+                    {Math.round(hour.temp_c || 0)}°
                   </div>
                   
                   <div className="space-y-1 text-xs">
@@ -213,14 +226,14 @@ export const ForecastCard: React.FC<ForecastCardProps> = ({ forecast }) => {
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                       </svg>
-                      <span>{hour.chance_of_rain}%</span>
+                      <span>{hour.chance_of_rain || 0}%</span>
                     </div>
                     
                     <div className="flex items-center justify-center gap-1 text-white/50">
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                       </svg>
-                      <span>{hour.wind_kph}</span>
+                      <span>{hour.wind_kph || 0}</span>
                     </div>
                   </div>
                 </div>
